@@ -11,7 +11,7 @@
  I found Nim to be especially useful in this case, it's almost like python on steroids. \
  The syntax was 1-1 to python, which made me enjoy the process and it did not take time even though I had only learned the language in one day. \
  The performance uplift was such a surprise, worth it. \
- There's much to be done later, it's not yet done, but right now it's enough for me.
+ There's much to be done later, currently, it's for my personal use only.
 
 ### Dependencies:
 Make sure to install these first:
