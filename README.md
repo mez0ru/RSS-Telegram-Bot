@@ -8,8 +8,7 @@
 
 ## Why did you rewrite it?
  while the original python bot satisfies my needs, using it on an underpowered cpu like my router didn't go well, it's slow and buggy. \
- I found Nim to be especially useful in this case, it's almost like python on steroids. \
- The syntax was 1-1 to python, which made me enjoy the process and it did not take time even though I had only learned the language in one day. \
+ I found Nim to be especially useful in this case, it's python done right imo. \
  The performance uplift was such a surprise, worth it. \
  There's much to be done later, currently, it's for my personal use only.
 
