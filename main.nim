@@ -21,7 +21,7 @@ template hold(lock: Lock, body: untyped) =
 const API_KEY = strip "YOUR API KEY"
 const test_rss = "https://www.reddit.com/r/funny/new/.rss"
 
-const chatId: int64 = 67345084
+const chatId: int64 = "YOUR CHAT ID"
 const delay: int64 = 28 * 60
 const predicates = {"rss url": ["list of conditions"]}.toTable()
 
