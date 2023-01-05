@@ -15,6 +15,6 @@
 ### Dependencies:
 Make sure to install these first:
 ```
-nimble install telebot 
+nimble install telebot easy_sqlite3
 ```
 Make sure to replace the const fields with your own fields in the main.nim source file.
