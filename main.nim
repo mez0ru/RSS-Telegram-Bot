@@ -5,7 +5,7 @@ from strformat import fmt
 import httpClient
 from streams import newStringStream
 import xmlparser, xmltree
-import tables
+import tables, std/os
 from std/locks import Lock, withLock, initLock
 import easy_sqlite3
 
@@ -21,9 +21,9 @@ template hold(lock: Lock, body: untyped) =
 const API_KEY = strip "YOUR API KEY"
 const test_rss = "https://www.reddit.com/r/funny/new/.rss"
 
-const chatId: int64 = "YOUR CHAT ID"
+const chatId: int64 = "Your chat id"
 const delay: int64 = 28 * 60
-const predicates = {"rss url": ["list of conditions"]}.toTable()
+const conditions = {"rss url": ["conditions"]}.toTable()
 
 var lastLinks: Table[int64, seq[string]]
 
@@ -96,17 +96,23 @@ proc formAMessage(name, link: string): string =
 proc monitorRSS(b: Telebot, isRepeat: bool): Future[bool] {.gcsafe, async.} =
   var toBeSentNotifications: seq[string]
   let client = newAsyncHttpClient()
-  echo fmt"run with {$isRepeat}"
+  # echo fmt"run with {$isRepeat}"
   hold dbLock:
     for id, name, rssLink in db.iterate_rss_full():
       # Get Xml content from rss link
-      let rssContent = await client.getContent(rssLink)
-      client.close()
+      var root: XmlNode
+      while isNil root:
+        try:
+          let rssContent = await client.getContent(rssLink)
+          defer: client.close()
+          root= parseXML(newStringStream(rssContent))
+        except OSError:
+          echo "Can't download RSS, trying again in 2 seconds..."
+          await sleepAsync(2000)
       # Parse XML content
-      let root= parseXML(newStringStream(rssContent))
 
       # Find feeds using the tag "entry", grab last 2s.
-      let entries = root.findAll("entry")[0..1]
+      let entries = root.findAll("entry")[0..5]
 
       let lastLink = entries[0].child("link").attr("href")
       
@@ -121,19 +127,19 @@ proc monitorRSS(b: Telebot, isRepeat: bool): Future[bool] {.gcsafe, async.} =
           lastLinks[id] = @[lastLink]
         
       var key: string
-      for y in predicates.keys:
+      for y in conditions.keys:
         if rssLink.contains(y):
           key = y
           break
 
-      for i, y in entries[0..^1]:
-        if predicates[key] in y.child("title").innerText or predicates[key] in y.child("media:group").child("media:description").innerText:
+      for i, y in entries:
+        if conditions[key] in y.child("title").innerText or conditions[key] in y.child("media:group").child("media:description").innerText:
           if i != 0:
             let link = y.child("link").attr("href")
             toBeSentNotifications.add formAMessage(name, link)
             hold lastLinksLock:
               if not lastLinks[id].contains link:
-                lastLinks[id].add(link)
+                lastLinks[id].add link
           else:
             toBeSentNotifications.add formAMessage(name, lastLink)
 
@@ -221,4 +227,9 @@ bot.onCommand("get", getRSSCommand)
 bot.onCommand("update", updateRSSCommand)
 bot.onCommand("test", testRSSCommand)
 bot.repeat(delay, monitorRSS)
-bot.poll(timeout=300)
+while true:
+  try:
+    bot.poll(timeout=300)
+  except OSError:
+    echo "Telegram can't connect..."
+    sleep(2000)
