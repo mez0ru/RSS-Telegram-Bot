@@ -7,9 +7,8 @@
  It's different from the original RSS-to-Telegram-Bot by BoKKeR, I made it so that it gives me updates when they contain keywords that I'm interested in.
 
 ## Why did you rewrite it?
- while the original python bot satisfies my needs, using it on an underpowered cpu like my router didn't go well, it's slow and buggy. \
- I find Nim to be especially useful in this case, it's python done right imo. \
- The performance uplift was such a surprise, worth it. \
+ while the original python bot satisfies my needs, I was not able to run it on my router due to it being slow.
+ Since Nim code is compiled, it's much more performant, which it did in my case.
  There's much to be done later, currently, it's for my personal use only.
 
 ### Dependencies:
