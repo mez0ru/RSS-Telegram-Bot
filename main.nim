@@ -115,6 +115,7 @@ proc go(pool: AsyncHttpClientPool, url: string, i: int64): Future[string] {.asyn
 
   while true:
     try:
+      defer: client.close()
       return await client.getContent(url)
     except OSError:
       echo "Can't download RSS, trying again..."
