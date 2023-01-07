@@ -5,9 +5,10 @@ from strformat import fmt
 import httpClient
 from streams import newStringStream
 import xmlparser, xmltree
-import tables, std/os
+import tables, std/[os, times, lists]
 from std/locks import Lock, withLock, initLock
 import easy_sqlite3
+import CustomizedHttpClient
 
 var L = newConsoleLogger(fmtStr="$levelname, [$time] ")
 addHandler(L)
@@ -22,10 +23,19 @@ const API_KEY = strip "YOUR API KEY"
 const test_rss = "https://www.reddit.com/r/funny/new/.rss"
 
 const chatId: int64 = "Your chat id"
-const delay: int64 = 28 * 60
-const conditions = {"rss url": ["conditions"]}.toTable()
+const delay: int64 = 29 * 60
+const DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:sszzz"
+const DISPLAY_DATE_FORMAT = "MMM dd, yyyy - h:mm tt"
+const predicates = {"rss url": ["conditions"]}.toTable()
 
-var lastLinks: Table[int64, seq[string]]
+type
+  Entry = object
+    title: string
+    link: string
+    published: Time
+    didMatch: bool
+
+var lastLinks: Table[int, DoublyLinkedList[Entry]]
 
 var lastLinksLock,
     dbLock,
@@ -88,61 +98,88 @@ proc contains(text: string, arr: openArray[string]): bool =
   for x in arr:
     if text.toLowerAscii().contains(x):
       return true
-  result = false
+  return false
 
-proc formAMessage(name, link: string): string =
-  fmt"RSS: {name}{'\n'}{link}"
+proc contains_link(entries: DoublyLinkedList[Entry], link: string): bool =
+  for x in entries:
+    if x.link == link:
+      return true
+  return false
+
+proc formAMessage(name, link, date: string): string =
+  fmt"Name: {name}{'\n'}Published: {date}{'\n'}{link}"
+
+proc go(pool: AsyncHttpClientPool, url: string, i: int64): Future[string] {.async.} =
+  let client = await pool.dequeue()
+  defer: pool.enqueue client
+
+  while true:
+    try:
+      return await client.getContent(url)
+    except OSError:
+      echo "Can't download RSS, trying again..."
+      await sleepAsync(2000)
 
 proc monitorRSS(b: Telebot, isRepeat: bool): Future[bool] {.gcsafe, async.} =
+  echo fmt"isRepeat: {$isRepeat}"
   var toBeSentNotifications: seq[string]
-  let client = newAsyncHttpClient()
-  # echo fmt"run with {$isRepeat}"
+  let pool = newAsyncHttpClientPool(4)
+  var reqs: seq[Future[string]] = @[]
+  var savedList: seq[tuple[id: int, name: string, rssLink: string]]
   hold dbLock:
     for id, name, rssLink in db.iterate_rss_full():
-      # Get Xml content from rss link
-      var root: XmlNode
-      while isNil root:
-        try:
-          let rssContent = await client.getContent(rssLink)
-          defer: client.close()
-          root= parseXML(newStringStream(rssContent))
-        except OSError:
-          echo "Can't download RSS, trying again in 2 seconds..."
-          await sleepAsync(2000)
-      # Parse XML content
+      savedList.add((id, name, rssLink))
+      reqs.add go(pool, rssLink, id)
+  echo "waiting for results..."
+  let reports = await all(reqs)
+  var i = 0
+  for (id, name, rssLink) in savedList:
+    let root= parseXML(newStringStream(reports[i]))
 
-      # Find feeds using the tag "entry", grab last 2s.
-      let entries = root.findAll("entry")[0..5]
+    # Find feeds using the tag "entry", grab last 6.
+    let entries = root.findAll("entry")[0..5]
+    
+    hold lastLinksLock:
+      var isListNew = false
 
-      let lastLink = entries[0].child("link").attr("href")
+      if not lastLinks.hasKey(id):
+        lastLinks[id] = initDoublyLinkedList[Entry]()
+        isListNew = true
       
-      hold lastLinksLock:
-        if lastLinks.hasKey(id):
-          if lastLinks[id].contains(lastLink):
-            continue
-          else:
-            lastLinks[id].setLen(0)
-            lastLinks[id].add(lastLink)
-        else:
-          lastLinks[id] = @[lastLink]
-        
       var key: string
-      for y in conditions.keys:
-        if rssLink.contains(y):
-          key = y
+      for x in predicates.keys:
+        if rssLink.contains x:
+          key = x
           break
 
-      for i, y in entries:
-        if conditions[key] in y.child("title").innerText or conditions[key] in y.child("media:group").child("media:description").innerText:
-          if i != 0:
-            let link = y.child("link").attr("href")
-            toBeSentNotifications.add formAMessage(name, link)
-            hold lastLinksLock:
-              if not lastLinks[id].contains link:
-                lastLinks[id].add link
-          else:
-            toBeSentNotifications.add formAMessage(name, lastLink)
+      var temp = initDoublyLinkedList[Entry]()
+      
+      for e in entries:
+        let link = e.child("link").attr("href")
+        
+        if lastLinks[id].contains_link link:
+          break
 
+        let title = e.child("title").innerText
+        let description = e.child("media:group").child("media:description").innerText
+        let date = parseTime(e.child("published").innerText, DATE_FORMAT, utc())
+        var didMatch = false
+        if predicates[key] in title or predicates[key] in description:
+          didMatch = true
+          toBeSentNotifications.add formAMessage(name, link, format(date, DISPLAY_DATE_FORMAT))
+        
+        let newEntry = Entry(title: title, link: link, published: date, didMatch: didMatch)
+
+        if isListNew:
+          lastLinks[id].add newEntry
+        else:
+          temp.add newEntry
+          lastLinks[id].remove lastLinks[id].tail
+
+      if not isListNew:
+        lastLinks[id].prepend temp
+    inc i
+        
   if not isRepeat and toBeSentNotifications.len == 0:
     discard await b.sendMessage(chatId, "Nothing new 😖", parseMode = "markdown", disableNotification = false)
     return
@@ -159,8 +196,8 @@ proc listRSSCommand(b: Telebot, c: Command): Future[bool] {.gcsafe, async.} =
   hold dbLock:
     for id, name in db.iterate_rss_names:
       hold lastLinksLock:
-        if lastLinks.hasKey(id) and lastLinks[id].len != 0:
-          discard await b.sendMessage(chatId, fmt"Name: {name}{'\n'}Last RSS: {lastLinks[id][0]}")
+        if lastLinks.hasKey(id):
+          discard await b.sendMessage(chatId, formAMessage(name, lastLinks[id].head.value.link, format(lastLinks[id].head.value.published, DISPLAY_DATE_FORMAT)))
       noRecord = false
   if not noRecord:
     discard await b.sendMessage(chatId, "List is empty :/")
@@ -207,9 +244,13 @@ proc getRSSCommand(b: Telebot, c: Command): Future[bool] {.gcsafe, async.} =
     for id, name in db.search_rss(query):
       hold lastLinksLock:
         if lastLinks.hasKey(id):
-          for link in lastLinks[id]:
-            discard await b.sendMessage(chatId, fmt"Name: {name}{'\n'}Last RSS: {link}")
-            noRecord = false
+          discard await b.sendMessage(chatId, formAMessage(name, lastLinks[id].head.value.link, format(lastLinks[id].head.value.published, DISPLAY_DATE_FORMAT)))
+          echo $lastLinks[id].head.value.didMatch
+          for x in lastLinks[id].nodes:
+            if x.prev != nil and x.value.didMatch:
+              echo "matched"
+              discard await b.sendMessage(chatId, formAMessage(name, x.value.link, format(x.value.published, DISPLAY_DATE_FORMAT)))
+          noRecord = false
   if noRecord:
     discard await b.sendMessage(chatId, "No records found, try again...")
 
