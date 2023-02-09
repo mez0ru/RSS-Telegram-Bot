@@ -11,9 +11,3 @@
  Since Nim code is compiled, it's much more performant, which it did in my case. \
  There's much to be done later, currently, it's for my personal use only.
 \ 
-### Dependencies:
-Make sure to install these first:
-```
-nimble install telebot easy_sqlite3
-```
-Make sure to replace the const fields with your own fields in the main.nim source file.
