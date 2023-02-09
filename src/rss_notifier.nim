@@ -92,9 +92,13 @@ proc runCommandOnFind(rss_link: string) =
   else:
     echo "Returned an error after executing on find command."
 
-proc is_same(entries: var DoublyLinkedList[Entry], link: string, views: int): tuple[link, views: bool; entry: Option[Entry]] =
+proc is_same(entries: var DoublyLinkedList[Entry], link: string, views: int): tuple[link, views, important: bool; entry: Option[Entry]] =
   var s_link, s_views = false
+  var e: Option[Entry]
+  var is_one_item_important = false # if one item is matched, then we have to iterate through the whole list after the fact
   for x in entries:
+    if x.didMatch:
+      is_one_item_important = true
     if x.link == link:
       s_link = true
     else:
@@ -103,8 +107,8 @@ proc is_same(entries: var DoublyLinkedList[Entry], link: string, views: int): tu
       s_views = true
     else:
       entries.find(x).value.views = views
-    return (s_link, s_views, some(x))
-  return (s_link, s_views, none(Entry))
+    e = some(x)
+  return (s_link, s_views, is_one_item_important, e)
 
 proc monitorRSS(b: Telebot, isRepeat: bool): Future[bool] {.gcsafe, async.} =
   echo fmt"isRepeat: {$isRepeat}"
@@ -147,7 +151,8 @@ proc monitorRSS(b: Telebot, isRepeat: bool): Future[bool] {.gcsafe, async.} =
         
         if is_the_same.link:
           if is_the_same.views:
-            break
+            if not is_the_same.important:
+              break
           else:
             runCommandOnFind(link)
             toBeSentNotifications.add formAMessage(name, link, format(is_the_same.entry.get().published, DISPLAY_DATE_FORMAT))
