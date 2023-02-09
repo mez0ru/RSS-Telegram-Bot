@@ -5,7 +5,7 @@ from strformat import fmt
 import httpClient
 from streams import newStringStream
 import xmlparser, xmltree
-import tables, std/[times, lists]
+import tables, std/[times, lists, options]
 from std/locks import Lock, withLock, initLock
 import easy_sqlite3
 import db_queries
@@ -15,7 +15,6 @@ import os
 import CustomizedHttpClient
 
 overload()
-assert getEnv("TEST_ENV") == "4"
 
 if not fileExists "data.db":
   echo "data.db doesn't seem to be found!, a new data.db will be created, press enter to continue."
@@ -45,6 +44,7 @@ type
     link: string
     published: Time
     didMatch: bool
+    views: int
 
 var lastLinks: Table[int, DoublyLinkedList[Entry]]
 var predicates: Table[string, seq[string]]
@@ -57,9 +57,7 @@ var lastLinksLock,
 lastLinksLock.initLock()
 dbLock.initLock()
 predicatesLock.initLock()
-var db: Database
-
-db = easy_sqlite3.initDatabase("data.db");
+var db = easy_sqlite3.initDatabase("data.db");
 
 proc contains(text: string, arr: openArray[string]): bool {.inline.} =
   for x in arr:
@@ -67,8 +65,11 @@ proc contains(text: string, arr: openArray[string]): bool {.inline.} =
       return true
   return false
 
-proc formAMessage(name, link, date: string): string {.inline.} =
-  fmt"Name: {name}{'\n'}Published: {date}{'\n'}{link}"
+proc formAMessage(name, link, date: string; broadcasted = true): string {.inline.} =
+  if broadcasted:
+    fmt"Name: {name}{'\n'}Published: {date}{'\n'}{link}"
+  else:
+    fmt"Name: {name}{'\n'}Planned on: {date}{'\n'}{link}"
 
 proc go(pool: AsyncHttpClientPool, url: string, i: int): Future[
     string] {.gcsafe, async.} =
@@ -91,14 +92,21 @@ proc runCommandOnFind(rss_link: string) =
   else:
     echo "Returned an error after executing on find command."
 
-proc contains_link(entries: DoublyLinkedList[Entry], link: string): bool =
+proc is_same(entries: var DoublyLinkedList[Entry], link: string, views: int): tuple[link, views: bool; entry: Option[Entry]] =
+  var s_link, s_views = false
   for x in entries:
     if x.link == link:
-      return true
-  return false
+      s_link = true
+    else:
+      continue
+    if x.views > 0 or x.views == views or not x.didMatch:
+      s_views = true
+    else:
+      entries.find(x).value.views = views
+    return (s_link, s_views, some(x))
+  return (s_link, s_views, none(Entry))
 
 proc monitorRSS(b: Telebot, isRepeat: bool): Future[bool] {.gcsafe, async.} =
-  let t1 = now()
   echo fmt"isRepeat: {$isRepeat}"
   var toBeSentNotifications: seq[string]
   let pool = newAsyncHttpClientPool(4)
@@ -111,66 +119,62 @@ proc monitorRSS(b: Telebot, isRepeat: bool): Future[bool] {.gcsafe, async.} =
   echo "waiting for results..."
   let reports = await all(reqs)
   for i, (id, name, rssLink) in savedList:
-    let root = parseXML(newStringStream(reports[i]))
+    let root= parseXML(newStringStream(reports[i]))
 
+    # Find feeds using the tag "entry", grab last 6.
+    let entries = root.findAll("entry")[0..5]
+    
     hold lastLinksLock:
-      let isListNew = not lastLinks.hasKey(id)
+      var isListNew = false
 
-      if isListNew:
-        hold lastLinksLock:
-          lastLinks[id] = initDoublyLinkedList[Entry]()
-
-      # Find feeds using the tag "entry", grab last 5.
-      let entries = root.findAll("entry")[0..4]
-
+      if not lastLinks.hasKey(id):
+        lastLinks[id] = initDoublyLinkedList[Entry]()
+        isListNew = true
+      
       var key: string
-      hold predicatesLock:
-        for x in predicates.keys:
-          if x in rssLink:
-            key = x
-            break
+      for x in predicates.keys:
+        if rssLink.contains x:
+          key = x
+          break
 
       var temp = initDoublyLinkedList[Entry]()
-
+      
       for e in entries:
         let link = e.child("link").attr("href")
-
-        hold lastLinksLock:
-          if lastLinks[id].contains_link link:
+        let views = parseInt(e.child("media:group").child("media:community").child("media:statistics").attr("views"))
+        
+        let is_the_same = lastLinks[id].is_same(link, views)
+        
+        if is_the_same.link:
+          if is_the_same.views:
             break
-
-        let title = e.child("title").innerText
-        let description = e.child("media:group").child("media:description").innerText
-        let date = parseTime(e.child("published").innerText, DATE_FORMAT, utc())
-
-
-        hold predicatesLock:
-          let didMatch = key.isEmptyOrWhitespace or predicates[key] in title or
-              predicates[key] in description
-
-          if didMatch:
-            toBeSentNotifications.add formAMessage(name, link, format(date,
-                DISPLAY_DATE_FORMAT))
+          else:
             runCommandOnFind(link)
+            toBeSentNotifications.add formAMessage(name, link, format(is_the_same.entry.get().published, DISPLAY_DATE_FORMAT))
+        else:
+          let title = e.child("title").innerText
+          let description = e.child("media:group").child("media:description").innerText
+          let date = parseTime(e.child("published").innerText, DATE_FORMAT, utc())
+          let didMatch = predicates[key] in title or predicates[key] in description
+          if didMatch:
+            let isBroadcasted = views > 0
+            if isBroadcasted: # If stream is not yet airing don't bother with running the command
+              runCommandOnFind(link)
+            toBeSentNotifications.add formAMessage(name, link, format(date, DISPLAY_DATE_FORMAT), isBroadcasted)
+          
+          let newEntry = Entry(title: title, link: link, published: date, didMatch: didMatch, views: views)
 
-          let newEntry = Entry(title: title, link: link, published: date,
-              didMatch: didMatch)
+          if isListNew:
+            lastLinks[id].add newEntry
+          else:
+            temp.add newEntry
+            lastLinks[id].remove lastLinks[id].tail
 
-          hold lastLinksLock:
-            if isListNew:
-              lastLinks[id].add newEntry
-            else:
-              temp.add newEntry
-              lastLinks[id].remove lastLinks[id].tail
-
-      hold lastLinksLock:
-        if not isListNew:
-          lastLinks[id].prepend move(temp)
-
-
+      if not isListNew:
+        lastLinks[id].prepend temp
+        
   if not isRepeat and toBeSentNotifications.len == 0:
-    discard await b.sendMessage(chatId, fmt"Nothing new 😖{'\n'}Finished in {(now() - t1).inMilliSeconds}ms.",
-        parseMode = "markdown", disableNotification = false)
+    discard await b.sendMessage(chatId, "Nothing new 😖", parseMode = "markdown", disableNotification = false)
     return
 
   for x in toBeSentNotifications:
@@ -225,7 +229,7 @@ proc listRSSCommand(b: Telebot, c: telebot.Command): Future[bool] {.gcsafe, asyn
         if lastLinks.hasKey(id):
           discard await b.sendMessage(chatId, formAMessage(name, lastLinks[
               id].head.value.link, format(lastLinks[id].head.value.published,
-              DISPLAY_DATE_FORMAT)))
+              DISPLAY_DATE_FORMAT), lastLinks[id].head.value.views > 0))
       noRecord = false
   if noRecord:
     discard await b.sendMessage(chatId, "List is empty :/")
@@ -297,11 +301,11 @@ proc getRSSCommand(b: Telebot, c: telebot.Command): Future[bool] {.gcsafe, async
         if lastLinks.hasKey(id):
           discard await b.sendMessage(chatId, formAMessage(name, lastLinks[
               id].head.value.link, format(lastLinks[id].head.value.published,
-              DISPLAY_DATE_FORMAT)))
+              DISPLAY_DATE_FORMAT), lastLinks[id].head.value.views > 0))
           for x in lastLinks[id].nodes:
             if x.prev != nil and x.value.didMatch:
               discard await b.sendMessage(chatId, formAMessage(name,
-                  x.value.link, format(x.value.published, DISPLAY_DATE_FORMAT)))
+                  x.value.link, format(x.value.published, DISPLAY_DATE_FORMAT), x.value.views > 0))
           noRecord = false
   if noRecord:
     discard await b.sendMessage(chatId, "No records found, try again...")
