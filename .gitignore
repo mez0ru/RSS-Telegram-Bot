@@ -1,3 +1,7 @@
 nimcache/
 nimblecache/
 htmldocs/
+.env
+data.db
+rss_notifier.exe
+rss_notifier
