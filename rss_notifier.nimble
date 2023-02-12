@@ -6,6 +6,7 @@ description   = "Telegram bot for rss notification"
 license       = "MIT"
 srcDir        = "src"
 bin           = @["rss_notifier"]
+backend       = "c"
 
 
 # Dependencies

@@ -84,13 +84,10 @@ proc go(pool: AsyncHttpClientPool, url: string, i: int): Future[
       echo "Can't download RSS, trying again..."
       await sleepAsync(2000)
 
-proc runCommandOnFind(rss_link: string) =
+proc runCommandOnFind(rss_link: string): int =
   if parseInt(getEnv("RUN_ON_FIND")) == 0:
-    return
-  if execShellCmd(getEnv("COMMAND_ON_FIND").replace("%url", rss_link)) == 0:
-    echo "Finished executing on find command successfully!"
-  else:
-    echo "Returned an error after executing on find command."
+    return 1
+  return execShellCmd(getEnv("COMMAND_ON_FIND").replace("%url", rss_link))
 
 proc is_same(entries: var DoublyLinkedList[Entry], link: string, views: int): tuple[link, views, important: bool; entry: Option[Entry]] =
   var s_link, s_views = false
@@ -154,7 +151,10 @@ proc monitorRSS(b: Telebot, isRepeat: bool): Future[bool] {.gcsafe, async.} =
             if not is_the_same.important:
               break
           else:
-            runCommandOnFind(link)
+            if runCommandOnFind(link) == 0:
+              discard await b.sendMessage(chatId,
+                    "Command executed successfully!",
+                    disableNotification = true)
             toBeSentNotifications.add formAMessage(name, link, format(is_the_same.entry.get().published, DISPLAY_DATE_FORMAT))
         else:
           let title = e.child("title").innerText
@@ -164,7 +164,10 @@ proc monitorRSS(b: Telebot, isRepeat: bool): Future[bool] {.gcsafe, async.} =
           if didMatch:
             let isBroadcasted = views > 0
             if isBroadcasted: # If stream is not yet airing don't bother with running the command
-              runCommandOnFind(link)
+              if runCommandOnFind(link) == 0:
+                discard await b.sendMessage(chatId,
+                    "Command executed successfully!",
+                    disableNotification = true)
             toBeSentNotifications.add formAMessage(name, link, format(date, DISPLAY_DATE_FORMAT), isBroadcasted)
           
           let newEntry = Entry(title: title, link: link, published: date, didMatch: didMatch, views: views)
@@ -357,6 +360,13 @@ proc conditionRSSCommand(b: Telebot, c: telebot.Command): Future[bool] {.gcsafe,
         disableNotification = true)
   result = true
 
+proc mockRSSCommand(b: Telebot, c: telebot.Command): Future[bool] {.gcsafe, async.} = 
+  if not c.params.isEmptyOrWhitespace:
+    discard runCommandOnFind(c.params)
+    discard await b.sendMessage(chatId,
+                "Mock ended",
+                disableNotification = true)
+
 db.init_sqlite()
 
 fill_predicates()
@@ -372,6 +382,8 @@ bot.onCommand("get", getRSSCommand)
 bot.onCommand("condition", conditionRSSCommand)
 bot.onCommand("update", updateRSSCommand)
 bot.onCommand("test", testRSSCommand)
+bot.onCommand("mock", mockRSSCommand)
+
 bot.repeat(delay, monitorRSS)
 
 when not defined(release):

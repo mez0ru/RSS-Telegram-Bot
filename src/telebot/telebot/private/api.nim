@@ -3,8 +3,11 @@ from tables import hasKey, `[]`
 import types, keyboard
 
 proc sendMessage*(b: TeleBot, chatId: int64, text: string, messageThreadId: int64 = 0, parseMode = "", entities: seq[MessageEntity] = @[],
-                  disableWebPagePreview = false, disableNotification = false, protectContent = false, replyToMessageId: int64 = 0,
-                  allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+                  disableWebPagePreview = false, disableNotification = false,
+                      protectContent = false, replyToMessageId: int64 = 0,
+                  allowSendingWithoutReply = false,
+                      replyMarkup: KeyboardMarkup = nil): Future[
+                      Message] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
@@ -18,7 +21,7 @@ proc sendMessage*(b: TeleBot, chatId: int64, text: string, messageThreadId: int6
     marshal(entities, json)
     data["entities"] = json
   if disableWebPagePreview:
-    data["disable_web_page_preview"]  = "true"
+    data["disable_web_page_preview"] = "true"
   if disableNotification:
     data["disable_notification"] = "true"
   if protectContent:
@@ -34,8 +37,12 @@ proc sendMessage*(b: TeleBot, chatId: int64, text: string, messageThreadId: int6
   result = getMessage(res)
 
 proc sendPhoto*(b: TeleBot, chatId: int64, photo: string, messageThreadId: int64 = 0, caption = "", parseMode = "",
-                captionEntities: seq[MessageEntity] = @[], disableNotification = false, protectContent = false, replyToMessageId: int64 = 0,
-                allowSendingWithoutReply = false,replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+                captionEntities: seq[MessageEntity] = @[],
+                    disableNotification = false, protectContent = false,
+                    replyToMessageId: int64 = 0,
+                allowSendingWithoutReply = false,
+                    replyMarkup: KeyboardMarkup = nil): Future[
+                    Message] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
@@ -65,8 +72,12 @@ proc sendPhoto*(b: TeleBot, chatId: int64, photo: string, messageThreadId: int64
   result = getMessage(res)
 
 proc sendAudio*(b: TeleBot, chatId: int64, audio: string, messageThreadId: int64 = 0, caption = "", parseMode = "", captionEntities: seq[MessageEntity] = @[],
-                duration: int64 = 0, performer = "", title = "", thumb = "", disableNotification = false, protectContent = false, replyToMessageId: int64 = 0,
-                allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+                duration: int64 = 0, performer = "", title = "", thumb = "",
+                    disableNotification = false, protectContent = false,
+                    replyToMessageId: int64 = 0,
+                allowSendingWithoutReply = false,
+                    replyMarkup: KeyboardMarkup = nil): Future[
+                    Message] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
@@ -104,8 +115,13 @@ proc sendAudio*(b: TeleBot, chatId: int64, audio: string, messageThreadId: int64
   result = getMessage(res)
 
 proc sendDocument*(b: TeleBot, chatId: int64, document: string, messageThreadId: int64 = 0, thumb = "", caption = "",
-                   disableContentTypeDetection = false, parseMode = "", captionEntities: seq[MessageEntity] = @[], disableNotification = false,
-                   protectContent = false, replyToMessageId: int64 = 0, allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+                   disableContentTypeDetection = false, parseMode = "",
+                       captionEntities: seq[MessageEntity] = @[],
+                       disableNotification = false,
+                   protectContent = false, replyToMessageId: int64 = 0,
+                       allowSendingWithoutReply = false,
+                       replyMarkup: KeyboardMarkup = nil): Future[
+                       Message] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
@@ -139,7 +155,9 @@ proc sendDocument*(b: TeleBot, chatId: int64, document: string, messageThreadId:
   result = getMessage(res)
 
 proc sendSticker*(b: TeleBot, chatId: int64, sticker: string, messageThreadId: int64 = 0, disableNotification = false, protectContent = false, replyToMessageId: int64 = 0,
-                  allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+                  allowSendingWithoutReply = false,
+                      replyMarkup: KeyboardMarkup = nil): Future[
+                      Message] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
@@ -161,8 +179,12 @@ proc sendSticker*(b: TeleBot, chatId: int64, sticker: string, messageThreadId: i
   result = getMessage(res)
 
 proc sendVideo*(b: TeleBot, chatId: int64, video: string, messageThreadId: int64 = 0, duration: int64 = 0, width: int64 = 0, height: int64 = 0, thumb = "", caption = "",
-                parseMode = "", captionEntities: seq[MessageEntity] = @[], supportsStreaming = false, disableNotification = false,
-                protectContent = false, replyToMessageId: int64 = 0, allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+                parseMode = "", captionEntities: seq[MessageEntity] = @[],
+                    supportsStreaming = false, disableNotification = false,
+                protectContent = false, replyToMessageId: int64 = 0,
+                    allowSendingWithoutReply = false,
+                    replyMarkup: KeyboardMarkup = nil): Future[
+                    Message] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
@@ -202,8 +224,11 @@ proc sendVideo*(b: TeleBot, chatId: int64, video: string, messageThreadId: int64
   result = getMessage(res)
 
 proc sendVoice*(b: TeleBot, chatId: int64, voice: string, messageThreadId: int64 = 0, caption = "", parseMode = "", captionEntities: seq[MessageEntity] = @[],
-                duration: int64 = 0, disableNotification = false, protectContent = false, replyToMessageId: int64 = 0,
-                allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+                duration: int64 = 0, disableNotification = false,
+                    protectContent = false, replyToMessageId: int64 = 0,
+                allowSendingWithoutReply = false,
+                    replyMarkup: KeyboardMarkup = nil): Future[
+                    Message] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
@@ -235,8 +260,11 @@ proc sendVoice*(b: TeleBot, chatId: int64, voice: string, messageThreadId: int64
   result = getMessage(res)
 
 proc sendVideoNote*(b: TeleBot, chatId: int64, videoNote: string, messageThreadId: int64 = 0, duration: int64 = 0, length: int64 = 0, thumb = "",
-                    disableNotification = false, protectContent = false, replyToMessageId: int64 = 0,
-                    allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+                    disableNotification = false, protectContent = false,
+                        replyToMessageId: int64 = 0,
+                    allowSendingWithoutReply = false,
+                        replyMarkup: KeyboardMarkup = nil): Future[
+                        Message] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
@@ -264,8 +292,12 @@ proc sendVideoNote*(b: TeleBot, chatId: int64, videoNote: string, messageThreadI
   result = getMessage(res)
 
 proc sendLocation*(b: TeleBot, chatId: int64, latitude: float, longitude: float, messageThreadId: int64 = 0, livePeriod: int64 = 0,
-                   heading: int64 = 0, proximityAlertRadius: int64 = 0, disableNotification = false, protectContent = false,
-                   replyToMessageId: int64 = 0, allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+                   heading: int64 = 0, proximityAlertRadius: int64 = 0,
+                       disableNotification = false, protectContent = false,
+                   replyToMessageId: int64 = 0,
+                       allowSendingWithoutReply = false,
+                       replyMarkup: KeyboardMarkup = nil): Future[
+                       Message] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
@@ -294,9 +326,14 @@ proc sendLocation*(b: TeleBot, chatId: int64, latitude: float, longitude: float,
   result = getMessage(res)
 
 proc sendVenue*(b: TeleBot, chatId: int64, latitude: float, longitude: float, address: string,
-                messageThreadId: int64 = 0, foursquareId = "", foursquareType = "",
-                googlePlaceId = "", googlePlaceType = "", disableNotification = false, protectContent = false, replyToMessageId: int64 = 0,
-                allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+                messageThreadId: int64 = 0, foursquareId = "",
+                    foursquareType = "",
+                googlePlaceId = "", googlePlaceType = "",
+                    disableNotification = false, protectContent = false,
+                    replyToMessageId: int64 = 0,
+                allowSendingWithoutReply = false,
+                    replyMarkup: KeyboardMarkup = nil): Future[
+                    Message] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
@@ -329,8 +366,11 @@ proc sendVenue*(b: TeleBot, chatId: int64, latitude: float, longitude: float, ad
   result = getMessage(res)
 
 proc sendContact*(b: TeleBot, chatId: int64, phoneNumber: string, firstName: string, lastName = "", vcard = "",
-                  messageThreadId: int64 = 0, disableNotification = false, protectContent = false, replyToMessageId: int64 = 0,
-                  allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+                  messageThreadId: int64 = 0, disableNotification = false,
+                      protectContent = false, replyToMessageId: int64 = 0,
+                  allowSendingWithoutReply = false,
+                      replyMarkup: KeyboardMarkup = nil): Future[
+                      Message] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
@@ -358,11 +398,20 @@ proc sendContact*(b: TeleBot, chatId: int64, phoneNumber: string, firstName: str
 
 proc sendInvoice*(b: TeleBot, chatId: int64, title: string, description: string, payload: string, providerToken: string, currency: string,
                   messageThreadId: int64 = 0,
-                  prices: seq[LabeledPrice], maxTipAmount: int64 = 0, suggestedTipAmounts: seq[int64] = @[], startParameter = "",
-                  providerData = "", photoUrl = "", photoSize: int64 = 0, photoWidth: int64 = 0, photoHeight: int64 = 0,
-                  needName = false, needPhoneNumber = false, needEmail = false, needShippingAddress = false, sendPhoneNumberToProvider = false,
-                  sendEmailToProvider = false, isFlexible = false, disableNotification = false, protectContent = false, replyToMessageId: int64 = 0,
-                  allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+                  prices: seq[LabeledPrice], maxTipAmount: int64 = 0,
+                      suggestedTipAmounts: seq[int64] = @[],
+                      startParameter = "",
+                  providerData = "", photoUrl = "", photoSize: int64 = 0,
+                      photoWidth: int64 = 0, photoHeight: int64 = 0,
+                  needName = false, needPhoneNumber = false, needEmail = false,
+                      needShippingAddress = false,
+                      sendPhoneNumberToProvider = false,
+                  sendEmailToProvider = false, isFlexible = false,
+                      disableNotification = false, protectContent = false,
+                      replyToMessageId: int64 = 0,
+                  allowSendingWithoutReply = false,
+                      replyMarkup: KeyboardMarkup = nil): Future[
+                      Message] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
@@ -423,16 +472,22 @@ proc sendInvoice*(b: TeleBot, chatId: int64, title: string, description: string,
   result = getMessage(res)
 
 proc createInvoiceLink*(b: TeleBot, title: string, description: string, payload: string, providerToken: string, currency: string, prices: seq[LabeledPrice], maxTipAmount: int64 = 0,
-                        suggestedTipAmounts: seq[int64] = @[], providerData = "", photoUrl = "", photoSize: int64 = 0, photoWidth: int64 = 0, photoHeight: int64 = 0,
-                        needName = false, needPhoneNumber = false, needEmail = false, needShippingAddress = false,
-                        sendPhoneNumberToProvider = false, sendEmailToProvider = false, isFlexible = false): Future[string] {.async.} =
+                        suggestedTipAmounts: seq[int64] = @[],
+                            providerData = "", photoUrl = "",
+                            photoSize: int64 = 0, photoWidth: int64 = 0,
+                            photoHeight: int64 = 0,
+                        needName = false, needPhoneNumber = false,
+                            needEmail = false, needShippingAddress = false,
+                        sendPhoneNumberToProvider = false,
+                            sendEmailToProvider = false,
+                            isFlexible = false): Future[string] {.async.} =
   var data = newMultipartData()
   data["title"] = title
   data["description"] = description
   data["payload"] = payload
   data["provider_token"] = providerToken
   data["currency"] = currency
-  var  json = ""
+  var json = ""
   marshal(prices, json)
   data["prices"] = json
   data["max_tip_amount"] = $maxTipAmount
@@ -470,9 +525,12 @@ proc createInvoiceLink*(b: TeleBot, title: string, description: string, payload:
 
 
 proc sendAnimation*(b: TeleBot, chatId: int64, animation: string, messageThreadId: int64 = 0, duration: int64 = 0, width: int64 = 0, height: int64 = 0, thumb = "",
-                   caption = "", parseMode = "", captionEntities: seq[MessageEntity] = @[], disableNotification = false,
+                   caption = "", parseMode = "", captionEntities: seq[
+                       MessageEntity] = @[], disableNotification = false,
                    protectContent = false, replyToMessageId: int64 = 0,
-                   allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+                   allowSendingWithoutReply = false,
+                       replyMarkup: KeyboardMarkup = nil): Future[
+                       Message] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
@@ -510,9 +568,15 @@ proc sendAnimation*(b: TeleBot, chatId: int64, animation: string, messageThreadI
   result = getMessage(res)
 
 proc sendPoll*(b: TeleBot, chatId: int64, question: string, options: seq[string], messageThreadId: int64 = 0, isAnonymous = false, kind = "",
-               allowsMultipleAnswers = false, correctOptionId: int64 = 0, explanation = "", explanationParseMode = "",
-               explanationEntities: seq[MessageEntity] = @[], openPeriod: int64 = 0, closeDate: int64 = 0, isClosed = false, disableNotification = false,
-               protectContent = false, replyToMessageId: int64 = 0, allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+               allowsMultipleAnswers = false, correctOptionId: int64 = 0,
+                   explanation = "", explanationParseMode = "",
+               explanationEntities: seq[MessageEntity] = @[],
+                   openPeriod: int64 = 0, closeDate: int64 = 0,
+                   isClosed = false, disableNotification = false,
+               protectContent = false, replyToMessageId: int64 = 0,
+                   allowSendingWithoutReply = false,
+                   replyMarkup: KeyboardMarkup = nil): Future[
+                   Message] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
@@ -559,7 +623,9 @@ proc sendPoll*(b: TeleBot, chatId: int64, question: string, options: seq[string]
   result = getMessage(res)
 
 proc sendDice*(b: TeleBot, chatId: int64, messageThreadId: int64 = 0, emoji = "", disableNotification = false, protectContent = false, replyToMessageId: int64 = 0,
-               allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[Message] {.async.} =
+               allowSendingWithoutReply = false,
+                   replyMarkup: KeyboardMarkup = nil): Future[
+                   Message] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
@@ -594,7 +660,9 @@ proc close*(b: TeleBot): Future[bool] {.async.} =
   let res = await makeRequest(b, procName)
   result = unmarshal(res, bool)
 
-proc forwardMessage*(b: TeleBot, chatId, fromChatId: string, messageId: int, messageThreadId: int64 = 0, disableNotification = false, protectContent = false): Future[Message] {.async.} =
+proc forwardMessage*(b: TeleBot, chatId, fromChatId: string, messageId: int,
+    messageThreadId: int64 = 0, disableNotification = false,
+    protectContent = false): Future[Message] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = chatId
@@ -611,8 +679,11 @@ proc forwardMessage*(b: TeleBot, chatId, fromChatId: string, messageId: int, mes
   result = getMessage(res)
 
 proc copyMessage*(b: TeleBot, chatId, fromChatId: string, messageId: int, messageThreadId: int64 = 0, caption = "", parseMode = "",
-                  captionEntities: seq[MessageEntity] = @[], disableNotification = false, protectContent = false,
-                  replyToMessageId: int64 = 0, allowSendingWithoutReply = false, replyMarkup: KeyboardMarkup = nil): Future[MessageId] {.async.} =
+                  captionEntities: seq[MessageEntity] = @[],
+                      disableNotification = false, protectContent = false,
+                  replyToMessageId: int64 = 0, allowSendingWithoutReply = false,
+                      replyMarkup: KeyboardMarkup = nil): Future[
+                      MessageId] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = chatId
@@ -643,14 +714,16 @@ proc copyMessage*(b: TeleBot, chatId, fromChatId: string, messageId: int, messag
   result = unmarshal(res, MessageId)
 
 
-proc sendChatAction*(b: TeleBot, chatId: ChatId, action: ChatAction): Future[void] {.async.} =
+proc sendChatAction*(b: TeleBot, chatId: ChatId, action: ChatAction): Future[
+    void] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = $chatId
   data["action"] = toLowerAscii($action)
 
   discard makeRequest(b, procName, data)
 
-proc getUserProfilePhotos*(b: TeleBot, userId: int, offset: int64 = 0, limit = 100): Future[UserProfilePhotos] {.async.} =
+proc getUserProfilePhotos*(b: TeleBot, userId: int, offset: int64 = 0,
+    limit = 100): Future[UserProfilePhotos] {.async.} =
   var data = newMultipartData()
   data["user_id"] = $userId
   data["limit"] = $limit
@@ -666,7 +739,8 @@ proc getFile*(b: TeleBot, fileId: string): Future[types.File] {.async.} =
   let res = await makeRequest(b, procName, data)
   result = unmarshal(res, types.File)
 
-proc banChatMember*(b: TeleBot, chatId: string, userId: int, untilDate: int64 = 0, revokeMessages = false): Future[bool] {.async.} =
+proc banChatMember*(b: TeleBot, chatId: string, userId: int,
+    untilDate: int64 = 0, revokeMessages = false): Future[bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["user_id"] = $userId
@@ -677,10 +751,13 @@ proc banChatMember*(b: TeleBot, chatId: string, userId: int, untilDate: int64 = 
   let res = await makeRequest(b, procName, data)
   result = res.getBool()
 
-proc kickChatMember*(b: TeleBot, chatId: string, userId: int, untilDate: int64 = 0, revokeMessages = false): Future[bool] {.async, inline, deprecated: "Use banChatMember instead".} =
+proc kickChatMember*(b: TeleBot, chatId: string, userId: int,
+    untilDate: int64 = 0, revokeMessages = false): Future[bool] {.async, inline,
+    deprecated: "Use banChatMember instead".} =
   result = await banChatMember(b, chatId, userId, untilDate, revokeMessages)
 
-proc unbanChatMember*(b: TeleBot, chatId: string, userId: int, onlyIfBanned = false): Future[bool] {.async.} =
+proc unbanChatMember*(b: TeleBot, chatId: string, userId: int,
+    onlyIfBanned = false): Future[bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["user_id"] = $userId
@@ -689,11 +766,13 @@ proc unbanChatMember*(b: TeleBot, chatId: string, userId: int, onlyIfBanned = fa
   let res = await makeRequest(b, procName, data)
   result = res.getBool()
 
-proc restrictChatMember*(b: TeleBot, chatId: string, userId: int, permissions: ChatPermissions, untilDate: int64 = 0): Future[bool] {.async.} =
+proc restrictChatMember*(b: TeleBot, chatId: string, userId: int,
+    permissions: ChatPermissions, untilDate: int64 = 0): Future[
+    bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["user_id"] = $userId
-  var json  = ""
+  var json = ""
   marshal(permissions, json)
   data["permissions"] = json
   if untilDate > 0:
@@ -702,8 +781,11 @@ proc restrictChatMember*(b: TeleBot, chatId: string, userId: int, permissions: C
   result = res.getBool
 
 proc promoteChatMember*(b: TeleBot, chatId: string, userId: int, isAnonymous = false, canManageChat = false, canChangeInfo = false,
-                        canPostMessages = false, canEditMessages = false, canDeleteMessages = false, canManageVideoChats = false,
-                        canInviteUsers = false, canRestrictMembers = false, canPinMessages = false, canPromoteMembers = false,
+                        canPostMessages = false, canEditMessages = false,
+                            canDeleteMessages = false,
+                            canManageVideoChats = false,
+                        canInviteUsers = false, canRestrictMembers = false,
+                            canPinMessages = false, canPromoteMembers = false,
                         canManageTopics = false): Future[bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
@@ -735,22 +817,25 @@ proc promoteChatMember*(b: TeleBot, chatId: string, userId: int, isAnonymous = f
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc setChatPermissions*(b: TeleBot, chatId: string, permissions: ChatPermissions): Future[bool] {.async.} =
+proc setChatPermissions*(b: TeleBot, chatId: string,
+    permissions: ChatPermissions): Future[bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
-  var json  = ""
+  var json = ""
   marshal(permissions, json)
   data["permissions"] = json
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc exportChatInviteLink*(b: TeleBot, chatId: string): Future[string] {.async.} =
+proc exportChatInviteLink*(b: TeleBot, chatId: string): Future[
+    string] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   let res = await makeRequest(b, procName, data)
   result = res.getStr
 
-proc setChatPhoto*(b: TeleBot, chatId: string, photo: string): Future[bool] {.async.} =
+proc setChatPhoto*(b: TeleBot, chatId: string, photo: string): Future[
+    bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   data.addData("photo", photo, true)
@@ -763,14 +848,16 @@ proc deleteChatPhoto*(b: TeleBot, chatId: string): Future[bool] {.async.} =
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc setChatTitle*(b: TeleBot, chatId: string, title: string): Future[bool] {.async.} =
+proc setChatTitle*(b: TeleBot, chatId: string, title: string): Future[
+    bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["title"] = title
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc setChatDescription*(b: TeleBot, chatId: string, description = ""): Future[bool] {.async.} =
+proc setChatDescription*(b: TeleBot, chatId: string, description = ""): Future[
+    bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   if description.len > 0:
@@ -778,7 +865,8 @@ proc setChatDescription*(b: TeleBot, chatId: string, description = ""): Future[b
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc pinChatMessage*(b: TeleBot, chatId: string, messageId: int, disableNotification = false): Future[bool] {.async.} =
+proc pinChatMessage*(b: TeleBot, chatId: string, messageId: int,
+    disableNotification = false): Future[bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["message_id"] = $messageId
@@ -787,7 +875,8 @@ proc pinChatMessage*(b: TeleBot, chatId: string, messageId: int, disableNotifica
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc unpinChatMessage*(b: TeleBot, chatId: string, messageId: int64 = 0): Future[bool] {.async.} =
+proc unpinChatMessage*(b: TeleBot, chatId: string,
+    messageId: int64 = 0): Future[bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   if messageId > 0:
@@ -814,7 +903,8 @@ proc getChat*(b: TeleBot, chatId: string): Future[Chat] {.async.} =
   let res = await makeRequest(b, procName, data)
   result = unmarshal(res, Chat)
 
-proc getChatAdministrators*(b: TeleBot, chatId: string): Future[seq[ChatMember]] {.async.} =
+proc getChatAdministrators*(b: TeleBot, chatId: string): Future[seq[
+    ChatMember]] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   let res = await makeRequest(b, procName, data)
@@ -828,10 +918,12 @@ proc getChatMemberCount*(b: TeleBot, chatId: string): Future[int64] {.async.} =
   let res = await makeRequest(b, procName, data)
   result = res.getBiggestInt
 
-proc getChatMembersCount*(b: TeleBot, chatId: string): Future[int64] {.async, inline, deprecated: "Use getChatMemberCount instead".} =
+proc getChatMembersCount*(b: TeleBot, chatId: string): Future[int64] {.async,
+    inline, deprecated: "Use getChatMemberCount instead".} =
   result = await getChatMemberCount(b, chatId)
 
-proc getChatMember*(b: TeleBot, chatId: string, userId: int): Future[ChatMember] {.async.} =
+proc getChatMember*(b: TeleBot, chatId: string, userId: int): Future[
+    ChatMember] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["user_id"] = $userId
@@ -844,13 +936,15 @@ proc getStickerSet*(b: TeleBot, name: string): Future[StickerSet] {.async.} =
   let res = await makeRequest(b, procName, data)
   result = unmarshal(res, StickerSet)
 
-proc getCustomEmojiStickers*(b: TeleBot, customEmojiIds: seq[string]): Future[seq[Sticker]] {.async.} =
+proc getCustomEmojiStickers*(b: TeleBot, customEmojiIds: seq[string]): Future[
+    seq[Sticker]] {.async.} =
   var data = newMultipartData()
   data["custom_emoji_ids"] = $customEmojiIds
   let res = await makeRequest(b, procName, data)
   result = unmarshal(res, seq[Sticker])
 
-proc uploadStickerFile*(b: TeleBot, userId: int, pngSticker: string): Future[types.File] {.async.} =
+proc uploadStickerFile*(b: TeleBot, userId: int, pngSticker: string): Future[
+    types.File] {.async.} =
   var data = newMultipartData()
   data["user_id"] = $userId
   data.addData("png_sticker", pngSticker, true)
@@ -858,7 +952,8 @@ proc uploadStickerFile*(b: TeleBot, userId: int, pngSticker: string): Future[typ
   result = unmarshal(res, types.File)
 
 proc createNewStickerSet*(b: TeleBot, userId: int, name, title, emojis: string, pngSticker, tgsSticker, webmSticker, stickerType = "",
-                          containsMasks = false, maskPosition: Option[MaskPosition]): Future[bool] {.async.} =
+                          containsMasks = false, maskPosition: Option[
+                              MaskPosition]): Future[bool] {.async.} =
   var data = newMultipartData()
   data["user_id"] = $userId
   data["name"] = name
@@ -881,7 +976,9 @@ proc createNewStickerSet*(b: TeleBot, userId: int, name, title, emojis: string, 
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc addStickerToSet*(b: TeleBot, userId: int, name: string, pngSticker, tgsSticker, webmSticker, emojis: string, maskPosition: Option[MaskPosition]): Future[bool] {.async.} =
+proc addStickerToSet*(b: TeleBot, userId: int, name: string, pngSticker,
+    tgsSticker, webmSticker, emojis: string, maskPosition: Option[
+    MaskPosition]): Future[bool] {.async.} =
   var data = newMultipartData()
   data["user_id"] = $userId
   data["name"] = name
@@ -901,20 +998,23 @@ proc addStickerToSet*(b: TeleBot, userId: int, name: string, pngSticker, tgsStic
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc setStickerPositionInSet*(b: TeleBot, sticker: string, position: int): Future[bool] {.async.} =
+proc setStickerPositionInSet*(b: TeleBot, sticker: string,
+    position: int): Future[bool] {.async.} =
   var data = newMultipartData()
   data["sticker"] = sticker
   data["position"] = $position
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc deleteStickerFromSet*(b: TeleBot, sticker: string): Future[bool] {.async.} =
+proc deleteStickerFromSet*(b: TeleBot, sticker: string): Future[
+    bool] {.async.} =
   var data = newMultipartData()
   data["sticker"] = sticker
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc setStickerSetThumb*(b: TeleBot, name: string, userId: int, thumb = ""): Future[bool] {.async.} =
+proc setStickerSetThumb*(b: TeleBot, name: string, userId: int,
+    thumb = ""): Future[bool] {.async.} =
   var data = newMultipartData()
   data["name"] = name
   data["user_id"] = $userId
@@ -924,7 +1024,8 @@ proc setStickerSetThumb*(b: TeleBot, name: string, userId: int, thumb = ""): Fut
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc setChatStickerSet*(b: TeleBot, chatId: string, stickerSetname: string): Future[bool] {.async.} =
+proc setChatStickerSet*(b: TeleBot, chatId: string,
+    stickerSetname: string): Future[bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["sticker_set_name"] = stickerSetname
@@ -941,7 +1042,9 @@ proc getForumTopicIconStickers*(b: TeleBot): Future[seq[Sticker]] {.async.} =
   let res = await makeRequest(b, procName)
   result = unmarshal(res, seq[Sticker])
 
-proc createForumTopic*(b: TeleBot, chatId: string, name: string, iconColor: int64 = 0, iconCustomEmojiId = ""): Future[ForumTopic] {.async.} =
+proc createForumTopic*(b: TeleBot, chatId: string, name: string,
+    iconColor: int64 = 0, iconCustomEmojiId = ""): Future[
+    ForumTopic] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["name"] = name
@@ -952,7 +1055,8 @@ proc createForumTopic*(b: TeleBot, chatId: string, name: string, iconColor: int6
   let res = await makeRequest(b, procName)
   result = unmarshal(res, ForumTopic)
 
-proc editForumTopic*(b: TeleBot, chatId: string, messageThreadId: int, name: string, iconCustomEmojiId = ""): Future[bool] {.async.} =
+proc editForumTopic*(b: TeleBot, chatId: string, messageThreadId: int,
+    name: string, iconCustomEmojiId = ""): Future[bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["message_thread_id"] = $messageThreadId
@@ -962,28 +1066,32 @@ proc editForumTopic*(b: TeleBot, chatId: string, messageThreadId: int, name: str
   let res = await makeRequest(b, procName)
   result = unmarshal(res, bool)
 
-proc closeForumTopic*(b: TeleBot, chatId: string, messageThreadId: int): Future[bool] {.async.} =
+proc closeForumTopic*(b: TeleBot, chatId: string, messageThreadId: int): Future[
+    bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["message_thread_id"] = $messageThreadId
   let res = await makeRequest(b, procName)
   result = unmarshal(res, bool)
 
-proc reopenForumTopic*(b: TeleBot, chatId: string, messageThreadId: int): Future[bool] {.async.} =
+proc reopenForumTopic*(b: TeleBot, chatId: string,
+    messageThreadId: int): Future[bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["message_thread_id"] = $messageThreadId
   let res = await makeRequest(b, procName)
   result = unmarshal(res, bool)
 
-proc deleteForumTopic*(b: TeleBot, chatId: string, messageThreadId: int): Future[bool] {.async.} =
+proc deleteForumTopic*(b: TeleBot, chatId: string,
+    messageThreadId: int): Future[bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["message_thread_id"] = $messageThreadId
   let res = await makeRequest(b, procName)
   result = unmarshal(res, bool)
 
-proc unpinAllForumTopicMessages*(b: TeleBot, chatId: string, messageThreadId: int): Future[bool] {.async.} =
+proc unpinAllForumTopicMessages*(b: TeleBot, chatId: string,
+    messageThreadId: int): Future[bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["message_thread_id"] = $messageThreadId
@@ -993,8 +1101,12 @@ proc unpinAllForumTopicMessages*(b: TeleBot, chatId: string, messageThreadId: in
 
 
 proc editMessageLiveLocation*(b: TeleBot, latitude: float, longitude: float, chatId = "",
-                              messageId: int64 = 0, inlineMessageId = "", horizontalAccuracy = 0.0,
-                              heading: int64 = 0, proximityAlertRadius: int64 = 0, replyMarkup: KeyboardMarkup = nil): Future[bool] {.async.} =
+                              messageId: int64 = 0, inlineMessageId = "",
+                                  horizontalAccuracy = 0.0,
+                              heading: int64 = 0,
+                                  proximityAlertRadius: int64 = 0,
+                                  replyMarkup: KeyboardMarkup = nil): Future[
+                                  bool] {.async.} =
   var data = newMultipartData()
   data["latiude"] = $latitude
   data["longitude"] = $longitude
@@ -1016,7 +1128,9 @@ proc editMessageLiveLocation*(b: TeleBot, latitude: float, longitude: float, cha
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc stopMessageLiveLocation*(b: TeleBot, chatId = "", messageId: int64 = 0, inlineMessageId = "", replyMarkup: KeyboardMarkup = nil): Future[bool] {.async.} =
+proc stopMessageLiveLocation*(b: TeleBot, chatId = "", messageId: int64 = 0,
+    inlineMessageId = "", replyMarkup: KeyboardMarkup = nil): Future[
+    bool] {.async.} =
   var data = newMultipartData()
   if chatId.len != 0:
     data["chat_id"] = chat_id
@@ -1030,14 +1144,17 @@ proc stopMessageLiveLocation*(b: TeleBot, chatId = "", messageId: int64 = 0, inl
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc sendMediaGroup*(b: TeleBot, chatId: string, media: seq[InputMediaSet], messageThreadId: int64 = 0, disableNotification = false, allowSendingWithoutReply = false, replyToMessageId: int64 = 0): Future[seq[Message]] {.async.} =
+proc sendMediaGroup*(b: TeleBot, chatId: string, media: seq[InputMediaSet],
+    messageThreadId: int64 = 0, disableNotification = false,
+    allowSendingWithoutReply = false, replyToMessageId: int64 = 0): Future[seq[
+    Message]] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   if messageThreadId > 0:
     data["message_thread_id"] = $messageThreadId
   for m in media:
     uploadInputMedia(data, m)
-  var json  = ""
+  var json = ""
   marshal(media, json)
   data["media"] = json
   if disableNotification:
@@ -1050,7 +1167,9 @@ proc sendMediaGroup*(b: TeleBot, chatId: string, media: seq[InputMediaSet], mess
   let res = await makeRequest(b, procName, data)
   result = unmarshal(res, seq[Message])
 
-proc editMessageMedia*(b: TeleBot, media: InputMediaSet, chatId = "", messageId: int64 = 0, inlineMessageId = "", replyMarkup: KeyboardMarkup = nil): Future[Option[Message]] {.async.} =
+proc editMessageMedia*(b: TeleBot, media: InputMediaSet, chatId = "",
+    messageId: int64 = 0, inlineMessageId = "",
+    replyMarkup: KeyboardMarkup = nil): Future[Option[Message]] {.async.} =
   var data = newMultipartData()
   if chatId.len > 0:
     data["chat_id"] = chat_id
@@ -1060,7 +1179,7 @@ proc editMessageMedia*(b: TeleBot, media: InputMediaSet, chatId = "", messageId:
     data["inline_message_id"] = inlineMessageId
 
   uploadInputMedia(data, media)
-  var json  = ""
+  var json = ""
   marshal(media, json)
   data["media"] = json
   if replyMarkup != nil:
@@ -1073,7 +1192,9 @@ proc editMessageMedia*(b: TeleBot, media: InputMediaSet, chatId = "", messageId:
     result = some(unmarshal(res, Message))
 
 proc editMessageText*(b: TeleBot, text: string, chatId = "", messageId: int64 = 0, inlineMessageId = "", parseMode = "", entities: seq[MessageEntity] = @[],
-                      replyMarkup: KeyboardMarkup = nil, disableWebPagePreview=false): Future[Option[Message]] {.async.} =
+                      replyMarkup: KeyboardMarkup = nil,
+                          disableWebPagePreview = false): Future[Option[
+                          Message]] {.async.} =
   var data = newMultipartData()
   if chatId.len > 0:
     data["chat_id"] = chat_id
@@ -1100,8 +1221,10 @@ proc editMessageText*(b: TeleBot, text: string, chatId = "", messageId: int64 = 
   else:
     result = some(unmarshal(res, Message))
 
-proc editMessageCaption*(b: TeleBot, caption = "", chatId = "", messageId: int64 = 0, inlineMessageId = "", parseMode="",
-                         captionEntities: seq[MessageEntity] = @[], replyMarkup: KeyboardMarkup = nil): Future[Option[Message]] {.async.} =
+proc editMessageCaption*(b: TeleBot, caption = "", chatId = "", messageId: int64 = 0, inlineMessageId = "", parseMode = "",
+                         captionEntities: seq[MessageEntity] = @[],
+                             replyMarkup: KeyboardMarkup = nil): Future[Option[
+                             Message]] {.async.} =
   var data = newMultipartData()
   if chatId.len > 0:
     data["chat_id"] = chat_id
@@ -1125,7 +1248,9 @@ proc editMessageCaption*(b: TeleBot, caption = "", chatId = "", messageId: int64
   else:
     result = some(unmarshal(res, Message))
 
-proc editMessageReplyMarkup*(b: TeleBot, chatId = "", messageId: int64 = 0, inlineMessageId = "", replyMarkup: KeyboardMarkup = nil): Future[Option[Message]] {.async.} =
+proc editMessageReplyMarkup*(b: TeleBot, chatId = "", messageId: int64 = 0,
+    inlineMessageId = "", replyMarkup: KeyboardMarkup = nil): Future[Option[
+    Message]] {.async.} =
   var data = newMultipartData()
   if chatId.len > 0:
     data["chat_id"] = chat_id
@@ -1142,7 +1267,9 @@ proc editMessageReplyMarkup*(b: TeleBot, chatId = "", messageId: int64 = 0, inli
   else:
     result = some(unmarshal(res, Message))
 
-proc stopPoll*(b: TeleBot, chatId = "", messageId: int64 = 0, inlineMessageId = "", replyMarkup: KeyboardMarkup = nil): Future[Option[Poll]] {.async.} =
+proc stopPoll*(b: TeleBot, chatId = "", messageId: int64 = 0,
+    inlineMessageId = "", replyMarkup: KeyboardMarkup = nil): Future[Option[
+    Poll]] {.async.} =
   var data = newMultipartData()
   if chatId.len > 0:
     data["chat_id"] = chat_id
@@ -1159,7 +1286,8 @@ proc stopPoll*(b: TeleBot, chatId = "", messageId: int64 = 0, inlineMessageId = 
   else:
     result = some(unmarshal(res, Poll))
 
-proc deleteMessage*(b: Telebot, chatId: string, messageId: int): Future[bool] {.async.} =
+proc deleteMessage*(b: Telebot, chatId: string, messageId: int): Future[
+    bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chat_id
   data["message_id"] = $messageId
@@ -1167,7 +1295,8 @@ proc deleteMessage*(b: Telebot, chatId: string, messageId: int): Future[bool] {.
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc answerCallbackQuery*(b: TeleBot, callbackQueryId: string, text = "", showAlert = false, url = "",  cacheTime: int64 = 0): Future[bool] {.async.} =
+proc answerCallbackQuery*(b: TeleBot, callbackQueryId: string, text = "",
+    showAlert = false, url = "", cacheTime: int64 = 0): Future[bool] {.async.} =
   var data = newMultipartData()
   data["callback_query_id"] = callbackQueryId
   if text.len > 0:
@@ -1182,9 +1311,11 @@ proc answerCallbackQuery*(b: TeleBot, callbackQueryId: string, text = "", showAl
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc setMyCommands*(b: TeleBot, commands: seq[BotCommand], scope = COMMAND_SCOPE_DEFAULT, chatId = "", userId: int64 = 0, languageCode = ""): Future[bool] {.async.} =
+proc setMyCommands*(b: TeleBot, commands: seq[BotCommand],
+    scope = COMMAND_SCOPE_DEFAULT, chatId = "", userId: int64 = 0,
+    languageCode = ""): Future[bool] {.async.} =
   var data = newMultipartData()
-  var json  = ""
+  var json = ""
   marshal(commands, json)
   data["commands"] = json
 
@@ -1196,7 +1327,8 @@ proc setMyCommands*(b: TeleBot, commands: seq[BotCommand], scope = COMMAND_SCOPE
   of COMMAND_SCOPE_CHAT, COMMAND_SCOPE_CHAT_ADMINISTARTORS:
     json = "{\"type\": \"$#\", \"chat_id\": \"$#\"}" % [$scope, $chatId]
   of COMMAND_SCOPE_CHAT_MEMBER:
-    json = "{\"type\": \"$#\", \"chat_id\": \"$#\", \"user_id\": $#}" % [$scope, $chatId, $userId]
+    json = "{\"type\": \"$#\", \"chat_id\": \"$#\", \"user_id\": $#}" % [$scope,
+        $chatId, $userId]
 
   if scope != COMMAND_SCOPE_DEFAULT:
     data["scope"] = json
@@ -1207,7 +1339,8 @@ proc setMyCommands*(b: TeleBot, commands: seq[BotCommand], scope = COMMAND_SCOPE
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc getMyCommands*(b: TeleBot, scope = COMMAND_SCOPE_DEFAULT, chatId = "", userId: int64 = 0, languageCode = ""): Future[seq[BotCommand]] {.async.} =
+proc getMyCommands*(b: TeleBot, scope = COMMAND_SCOPE_DEFAULT, chatId = "",
+    userId: int64 = 0, languageCode = ""): Future[seq[BotCommand]] {.async.} =
   var data = newMultipartData()
 
   var json = ""
@@ -1219,7 +1352,8 @@ proc getMyCommands*(b: TeleBot, scope = COMMAND_SCOPE_DEFAULT, chatId = "", user
   of COMMAND_SCOPE_CHAT, COMMAND_SCOPE_CHAT_ADMINISTARTORS:
     json = "{\"type\": \"$#\", \"chat_id\": \"$#\"}" % [$scope, $chatId]
   of COMMAND_SCOPE_CHAT_MEMBER:
-    json = "{\"type\": \"$#\", \"chat_id\": \"$#\", \"user_id\": $#}" % [$scope, $chatId, $userId]
+    json = "{\"type\": \"$#\", \"chat_id\": \"$#\", \"user_id\": $#}" % [$scope,
+        $chatId, $userId]
 
   if scope != COMMAND_SCOPE_DEFAULT:
     data["scope"] = json
@@ -1231,7 +1365,8 @@ proc getMyCommands*(b: TeleBot, scope = COMMAND_SCOPE_DEFAULT, chatId = "", user
 
   result = unmarshal(res, seq[BotCommand])
 
-proc deleteMyCommands*(b: TeleBot, scope = COMMAND_SCOPE_DEFAULT, chatId = "", userId: int64 = 0, languageCode = ""): Future[bool] {.async.} =
+proc deleteMyCommands*(b: TeleBot, scope = COMMAND_SCOPE_DEFAULT, chatId = "",
+    userId: int64 = 0, languageCode = ""): Future[bool] {.async.} =
   var data = newMultipartData()
 
   var json = ""
@@ -1243,7 +1378,8 @@ proc deleteMyCommands*(b: TeleBot, scope = COMMAND_SCOPE_DEFAULT, chatId = "", u
   of COMMAND_SCOPE_CHAT, COMMAND_SCOPE_CHAT_ADMINISTARTORS:
     json = "{\"type\": \"$#\", \"chat_id\": \"$#\"}" % [$scope, $chatId]
   of COMMAND_SCOPE_CHAT_MEMBER:
-    json = "{\"type\": \"$#\", \"chat_id\": \"$#\", \"user_id\": $#}" % [$scope, $chatId, $userId]
+    json = "{\"type\": \"$#\", \"chat_id\": \"$#\", \"user_id\": $#}" % [$scope,
+        $chatId, $userId]
 
   if scope != COMMAND_SCOPE_DEFAULT:
     data["scope"] = json
@@ -1254,7 +1390,9 @@ proc deleteMyCommands*(b: TeleBot, scope = COMMAND_SCOPE_DEFAULT, chatId = "", u
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc answerInlineQuery*[T: InlineQueryResult](b: TeleBot, id: string, results: seq[T], cacheTime: int64 = 0, isPersonal = false, nextOffset = "", switchPmText = "", switchPmParameter = ""): Future[bool] {.async.} =
+proc answerInlineQuery*[T: InlineQueryResult](b: TeleBot, id: string,
+    results: seq[T], cacheTime: int64 = 0, isPersonal = false, nextOffset = "",
+    switchPmText = "", switchPmParameter = ""): Future[bool] {.async.} =
   if results.len == 0:
     return false
 
@@ -1279,7 +1417,8 @@ proc answerInlineQuery*[T: InlineQueryResult](b: TeleBot, id: string, results: s
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc setChatAdministratorCustomTitle*(b: TeleBot, chatId: string, userId: int, customTitle: string): Future[bool] {.async.} =
+proc setChatAdministratorCustomTitle*(b: TeleBot, chatId: string, userId: int,
+    customTitle: string): Future[bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["user_id"] = $userId
@@ -1287,7 +1426,8 @@ proc setChatAdministratorCustomTitle*(b: TeleBot, chatId: string, userId: int, c
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc banChatSenderChat*(b: TeleBot, chatId: string, senderChatId: int, untilDate: int64 = 0): Future[bool] {.async.} =
+proc banChatSenderChat*(b: TeleBot, chatId: string, senderChatId: int,
+    untilDate: int64 = 0): Future[bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["sender_chat_id"] = $senderChatId
@@ -1296,14 +1436,16 @@ proc banChatSenderChat*(b: TeleBot, chatId: string, senderChatId: int, untilDate
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc unbanChatSenderChat*(b: TeleBot, chatId: string, senderChatId: int): Future[bool] {.async.} =
+proc unbanChatSenderChat*(b: TeleBot, chatId: string,
+    senderChatId: int): Future[bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   data["sender_chat_id"] = $senderChatId
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc getUpdates*(b: TeleBot, offset, limit: int64 = 0, timeout = 50, allowedUpdates: seq[string] = @[]): Future[JsonNode] {.async.} =
+proc getUpdates*(b: TeleBot, offset, limit: int64 = 0, timeout = 50,
+    allowedUpdates: seq[string] = @[]): Future[JsonNode] {.async.} =
   var data = newMultipartData()
 
   if offset > 0:
@@ -1347,7 +1489,7 @@ proc handleUpdate*(b: TeleBot, update: Update) {.async.} =
       if stop: break
 
 proc cleanUpdates*(b: TeleBot) {.async.} =
-  var updates = await b.getUpdates(timeout=0)
+  var updates = await b.getUpdates(timeout = 0)
   while updates.len >= 100:
     updates = await b.getUpdates()
 
@@ -1363,12 +1505,12 @@ proc loop(b: TeleBot, timeout = 50, offset, limit: int64 = 0) {.async.} =
   var seconds: int64 = 0
   while true:
     let dateX = now()
-    let updates = await b.getUpdates(timeout=timeout, offset=offset, limit=limit)
+    let updates = await b.getUpdates(timeout = timeout, offset = offset, limit = limit)
     seconds += (now() - dateX).inSeconds
     echo "elapsed " & $seconds & " seconds."
     for z in b.repeatCallbacks:
       if z.seconds <= int64(seconds):
-        discard await z.rb(b, true)
+        asyncCheck z.rb(b, true)
         seconds = 0
     for item in updates:
       let update = unmarshal(item, Update)
@@ -1379,14 +1521,17 @@ proc poll*(b: TeleBot, timeout = 50, offset, limit: int64 = 0, clean = false) =
     waitFor b.cleanUpdates()
   waitFor loop(b, timeout, offset, limit)
 
-proc pollAsync*(b: TeleBot, timeout = 50, offset, limit: int64 = 0, clean = false) {.async.} =
+proc pollAsync*(b: TeleBot, timeout = 50, offset, limit: int64 = 0,
+    clean = false) {.async.} =
   if clean:
     await b.cleanUpdates()
   await loop(b, timeout, offset, limit)
 
 
 proc sendGame*(b: TeleBot, chatId: int64, gameShortName: string, messageThreadId: int64 = 0, disableNotification = false, replyToMessageId: int64 = 0,
-               allowSendingWithoutReply = false, replyMarkup: InlineKeyboardMarkup): Future[Message] {.async.} =
+               allowSendingWithoutReply = false,
+                   replyMarkup: InlineKeyboardMarkup): Future[
+                   Message] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
@@ -1406,7 +1551,8 @@ proc sendGame*(b: TeleBot, chatId: int64, gameShortName: string, messageThreadId
   result = getMessage(res)
 
 proc setGameScore*(b: TeleBot, userId: int, score: int, force = false, disableEditMessage = false,
-                   chatId: int64 = 0, inlineMessageId: int64 = 0): Future[Message] {.async.} =
+                   chatId: int64 = 0, inlineMessageId: int64 = 0): Future[
+                       Message] {.async.} =
 
   var data = newMultipartData()
 
@@ -1423,7 +1569,9 @@ proc setGameScore*(b: TeleBot, userId: int, score: int, force = false, disableEd
   let res = await makeRequest(b, procName, data)
   result = getMessage(res)
 
-proc getGameHighScores*(b: TeleBot, userId: int, chatId: int64 = 0, messageId: int64 = 0, inlineMessageId: int64 = 0): Future[seq[GameHighScore]] {.async.} =
+proc getGameHighScores*(b: TeleBot, userId: int, chatId: int64 = 0,
+    messageId: int64 = 0, inlineMessageId: int64 = 0): Future[seq[
+    GameHighScore]] {.async.} =
   var data = newMultipartData()
 
   data["user_id"] = $userId
@@ -1436,7 +1584,9 @@ proc getGameHighScores*(b: TeleBot, userId: int, chatId: int64 = 0, messageId: i
   let res = await makeRequest(b, procName, data)
   result = unmarshal(res, seq[GameHighScore])
 
-proc createChatInviteLink*(b: Telebot, chatId: ChatId, name = "", expireDate: int64 = 0, memberLimit: int64 = 0, createsJoinRequest = false): Future[ChatInviteLink] {.async.} =
+proc createChatInviteLink*(b: Telebot, chatId: ChatId, name = "",
+    expireDate: int64 = 0, memberLimit: int64 = 0,
+    createsJoinRequest = false): Future[ChatInviteLink] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
@@ -1452,7 +1602,9 @@ proc createChatInviteLink*(b: Telebot, chatId: ChatId, name = "", expireDate: in
   let res = await makeRequest(b, procName, data)
   result = unmarshal(res, seq[ChatInviteLink])
 
-proc editChatInviteLink*(b: Telebot, chatId: ChatId, inviteLink: string, name = "", expireDate: int64 = 0, memberLimit: int64 = 0, createsJoinRequest = false): Future[ChatInviteLink] {.async.} =
+proc editChatInviteLink*(b: Telebot, chatId: ChatId, inviteLink: string,
+    name = "", expireDate: int64 = 0, memberLimit: int64 = 0,
+    createsJoinRequest = false): Future[ChatInviteLink] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
@@ -1469,7 +1621,8 @@ proc editChatInviteLink*(b: Telebot, chatId: ChatId, inviteLink: string, name = 
   let res = await makeRequest(b, procName, data)
   result = unmarshal(res, seq[ChatInviteLink])
 
-proc revokeChatInviteLink*(b: Telebot, chatId: ChatId, inviteLink: string): Future[ChatInviteLink] {.async.} =
+proc revokeChatInviteLink*(b: Telebot, chatId: ChatId,
+    inviteLink: string): Future[ChatInviteLink] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
@@ -1478,7 +1631,8 @@ proc revokeChatInviteLink*(b: Telebot, chatId: ChatId, inviteLink: string): Futu
   let res = await makeRequest(b, procName, data)
   result = unmarshal(res, seq[ChatInviteLink])
 
-proc approveChatJoinRequest*(b: Telebot, chatId: ChatId, userId: int): Future[bool] {.async.} =
+proc approveChatJoinRequest*(b: Telebot, chatId: ChatId, userId: int): Future[
+    bool] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
@@ -1487,7 +1641,8 @@ proc approveChatJoinRequest*(b: Telebot, chatId: ChatId, userId: int): Future[bo
   let res = await makeRequest(b, procName, data)
   result = unmarshal(res, bool)
 
-proc declineChatJoinRequest*(b: Telebot, chatId: ChatId, userId: int): Future[bool] {.async.} =
+proc declineChatJoinRequest*(b: Telebot, chatId: ChatId, userId: int): Future[
+    bool] {.async.} =
   var data = newMultipartData()
 
   data["chat_id"] = $chatId
@@ -1497,7 +1652,8 @@ proc declineChatJoinRequest*(b: Telebot, chatId: ChatId, userId: int): Future[bo
   result = unmarshal(res, bool)
 
 
-proc answerWebAppQuery*(b: Telebot, webAppQueryId: string, res: InlineQueryResult): Future[SentWebAppMessage] {.async.} =
+proc answerWebAppQuery*(b: Telebot, webAppQueryId: string,
+    res: InlineQueryResult): Future[SentWebAppMessage] {.async.} =
   var data = newMultipartData()
 
   data["web_app_query_id"] = webAppQueryId
@@ -1508,7 +1664,8 @@ proc answerWebAppQuery*(b: Telebot, webAppQueryId: string, res: InlineQueryResul
   let res = await makeRequest(b, procName, data)
   result = unmarshal(res, SentWebAppMessage)
 
-proc setChatMenuButon*(b: TeleBot, chatId: string, menuButton: MenuButton): Future[bool] {.async.} =
+proc setChatMenuButon*(b: TeleBot, chatId: string,
+    menuButton: MenuButton): Future[bool] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   var s = ""
@@ -1517,13 +1674,16 @@ proc setChatMenuButon*(b: TeleBot, chatId: string, menuButton: MenuButton): Futu
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc getChatMenuButon*(b: TeleBot, chatId: string): Future[MenuButton] {.async.} =
+proc getChatMenuButon*(b: TeleBot, chatId: string): Future[
+    MenuButton] {.async.} =
   var data = newMultipartData()
   data["chat_id"] = chatId
   let res = await makeRequest(b, procName, data)
   result = unmarshal(res, MenuButton)
 
-proc setMyDefaultAdministratorRights*(b: TeleBot, rights: ChatAdministratorRights, forChannels = false): Future[bool] {.async.} =
+proc setMyDefaultAdministratorRights*(b: TeleBot,
+    rights: ChatAdministratorRights, forChannels = false): Future[
+    bool] {.async.} =
   var data = newMultipartData()
 
   var s = ""
@@ -1534,7 +1694,8 @@ proc setMyDefaultAdministratorRights*(b: TeleBot, rights: ChatAdministratorRight
   let res = await makeRequest(b, procName, data)
   result = res.getBool
 
-proc getMyDefaultAdministratorRights*(b: TeleBot, forChannels = false): Future[ChatAdministratorRights] {.async.} =
+proc getMyDefaultAdministratorRights*(b: TeleBot, forChannels = false): Future[
+    ChatAdministratorRights] {.async.} =
   var data = newMultipartData()
   if forChannels:
     data["for_channels"] = "True"
