@@ -1,5 +1,5 @@
 # RSS Telegram Bot
- Inspired by my favorite RSS-to-Telegram-Bot by BoKKeR.
+ Inspired by [RSS-to-Telegram-Bot](https://github.com/BoKKeR/RSS-to-Telegram-Bot) by [BoKKeR](https://github.com/BoKKeR).
  
 
 ## What does it do?
